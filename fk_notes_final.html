@@ -191,16 +191,35 @@
     updateCounts();
   }
 
-  async function saveNote() {
+  Replace the entire function with this:
+javascriptasync function saveNote() {
     const input = document.getElementById('compose-input');
     const text = input.value.trim();
     if (!text) return;
     if (selectedTags.size === 0) { showToast('Select at least one tag'); return; }
     const btn = document.getElementById('save-btn');
     btn.disabled = true;
+    setSyncStatus('syncing', 'Thinking…');
+
+    let insight = null;
+    let finalTags = [...selectedTags];
+
+    try {
+      const res = await fetch('https://njwolfjnardtrgzysutb.supabase.co/functions/v1/process-note', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': 'sb_publishable_gpDXykIajxajyZZgrSZdvQ_tBmw2f3W' },
+        body: JSON.stringify({ text, tags: [...selectedTags], customTags })
+      });
+      const result = await res.json();
+      if (result.insight) insight = result.insight;
+      if (result.suggested_tags?.length) finalTags = result.suggested_tags;
+    } catch(e) {
+      console.error('Edge function error:', e);
+    }
+
     setSyncStatus('syncing', 'Saving…');
     try {
-      const { data, error } = await sb.from('notes').insert([{ text, tags: [...selectedTags], insight: null }]).select().single();
+      const { data, error } = await sb.from('notes').insert([{ text, tags: finalTags, insight }]).select().single();
       if (error) throw error;
       notes.unshift(data);
       input.value = '';
@@ -217,6 +236,7 @@
     }
     btn.disabled = false;
   }
+  
 
   async function deleteNote(id) {
     try {
@@ -343,8 +363,8 @@
         const t = tagById(tid);
         return `<span class="tag-pill" style="color:${t.color};background:${t.bg};font-size:10px;padding:2px 8px;border:1.5px solid transparent;cursor:default;">${t.label}</span>`;
       }).join('');
-      return `<div class="note-card"><div class="note-meta">${tagPills}<span class="note-date">${formatDate(note.created_at)}</span></div><div class="note-body">${esc(note.text)}</div><div class="note-actions"><button class="note-action-btn" onclick="copyNote(${JSON.stringify(note.text)})">Copy</button><button class="note-action-btn delete" onclick="deleteNote('${note.id}')">Delete</button></div></div>`;
-    }).join('');
+      const insightHtml = note.insight ? `<div style="margin-top:10px;padding:10px 12px;background:#E8F0F8;border-radius:4px;border-left:3px solid #1464A0;font-size:13px;font-weight:300;color:#3D5068;line-height:1.55;"><div style="font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#1464A0;margin-bottom:4px;">Claude</div>${esc(note.insight)}</div>` : '';
+      return `<div class="note-card"><div class="note-meta">${tagPills}<span class="note-date">${formatDate(note.created_at)}</span></div><div class="note-body">${esc(note.text)}</div>${insightHtml}<div class="note-actions">
   }
 
   function updateCounts() {
