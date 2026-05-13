@@ -608,9 +608,8 @@ Suggest tags that genuinely apply. Include user-selected tags unless clearly wro
     btn.disabled = true;
     setSyncStatus('syncing', 'Saving…');
 
-    // Process with Claude
-    const { insight, suggested_tags } = await processWithClaude(text, selectedTags);
-    const finalTags = suggested_tags?.length ? suggested_tags : [...selectedTags];
+    const finalTags = [...selectedTags];
+    const insight = null;
 
     // Save to Supabase
     try {
