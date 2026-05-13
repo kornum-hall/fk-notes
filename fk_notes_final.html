@@ -74,6 +74,8 @@
   .note-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
   .note-date { font-size: 11px; color: var(--ink-faint); font-weight: 300; }
   .note-body { font-size: 14px; font-weight: 300; line-height: 1.65; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  .note-insight { margin-top: 10px; padding: 10px 12px; background: var(--blue-light); border-radius: 4px; border-left: 3px solid var(--blue); font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.55; }
+  .note-insight-label { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
   .note-actions { position: absolute; top: 12px; right: 12px; display: none; gap: 4px; }
   .note-card:hover .note-actions { display: flex; }
   .note-action-btn { background: var(--off-white); border: 1px solid var(--border); border-radius: 3px; padding: 4px 8px; font-size: 11px; color: var(--ink-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
@@ -88,7 +90,6 @@
 </style>
 </head>
 <body>
-
 <header>
   <div class="header-left">
     <div class="app-title">Notes</div>
@@ -99,7 +100,6 @@
     <span id="sync-text"></span>
   </div>
 </header>
-
 <div class="layout">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-label">Projects</div>
@@ -111,7 +111,6 @@
     <div class="sidebar-divider"></div>
     <div id="sidebar-tag-list"></div>
   </aside>
-
   <div class="main">
     <div class="main-inner">
       <div class="compose-area">
@@ -125,22 +124,19 @@
           <button class="save-btn" id="save-btn" onclick="saveNote()">Save</button>
         </div>
       </div>
-
       <div class="notes-header">
         <div class="notes-title" id="filter-label">All notes</div>
         <input class="search-input" id="search-input" placeholder="Search…" oninput="renderNotes()">
       </div>
-
       <div class="notes-list" id="notes-list"></div>
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
   const SUPABASE_URL = 'https://njwolfjnardtrgzysutb.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_gpDXykIajxajyZZgrSZdvQ_tBmw2f3W';
+  const EDGE_FN_URL  = 'https://njwolfjnardtrgzysutb.supabase.co/functions/v1/process-note';
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let notes = [], customTags = [], selectedTags = new Set(), activeFilter = 'all';
@@ -198,9 +194,27 @@
     if (selectedTags.size === 0) { showToast('Select at least one tag'); return; }
     const btn = document.getElementById('save-btn');
     btn.disabled = true;
+    setSyncStatus('syncing', 'Thinking…');
+
+    let insight = null;
+    let finalTags = [...selectedTags];
+
+    try {
+      const res = await fetch(EDGE_FN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+        body: JSON.stringify({ text, tags: [...selectedTags], customTags })
+      });
+      const result = await res.json();
+      if (result.insight) insight = result.insight;
+      if (result.suggested_tags?.length) finalTags = result.suggested_tags;
+    } catch(e) {
+      console.error('Edge function error:', e);
+    }
+
     setSyncStatus('syncing', 'Saving…');
     try {
-      const { data, error } = await sb.from('notes').insert([{ text, tags: [...selectedTags], insight: null }]).select().single();
+      const { data, error } = await sb.from('notes').insert([{ text, tags: finalTags, insight }]).select().single();
       if (error) throw error;
       notes.unshift(data);
       input.value = '';
@@ -343,7 +357,8 @@
         const t = tagById(tid);
         return `<span class="tag-pill" style="color:${t.color};background:${t.bg};font-size:10px;padding:2px 8px;border:1.5px solid transparent;cursor:default;">${t.label}</span>`;
       }).join('');
-      return `<div class="note-card"><div class="note-meta">${tagPills}<span class="note-date">${formatDate(note.created_at)}</span></div><div class="note-body">${esc(note.text)}</div><div class="note-actions"><button class="note-action-btn" onclick="copyNote(${JSON.stringify(note.text)})">Copy</button><button class="note-action-btn delete" onclick="deleteNote('${note.id}')">Delete</button></div></div>`;
+      const insightHtml = note.insight ? `<div class="note-insight"><div class="note-insight-label">Claude</div>${esc(note.insight)}</div>` : '';
+      return `<div class="note-card"><div class="note-meta">${tagPills}<span class="note-date">${formatDate(note.created_at)}</span></div><div class="note-body">${esc(note.text)}</div>${insightHtml}<div class="note-actions"><button class="note-action-btn" onclick="copyNote(${JSON.stringify(note.text)})">Copy</button><button class="note-action-btn delete" onclick="deleteNote('${note.id}')">Delete</button></div></div>`;
     }).join('');
   }
 
