@@ -57,7 +57,13 @@
   .add-tag-trigger:hover { border-color: var(--ink-muted); color: var(--ink-muted); }
   .new-tag-input { display: none; border: 1.5px solid var(--border); border-radius: 12px; padding: 3px 10px; font-size: 11px; font-family: 'DM Sans', sans-serif; color: var(--ink); background: var(--white); outline: none; width: 110px; transition: border-color 0.15s; }
   .new-tag-input:focus { border-color: var(--blue); }
-  textarea.compose-input { width: 100%; min-height: 60px; border: none; outline: none; padding: 16px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; line-height: 1.65; color: var(--ink); background: var(--white); resize: none; overflow: hidden; display: block; }
+  .format-bar { padding: 4px 12px; background: var(--off-white); border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 2px; }
+  .fmt-btn { background: none; border: none; border-radius: 3px; padding: 4px 7px; font-size: 13px; color: var(--ink-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.12s, color 0.12s; line-height: 1; }
+  .fmt-btn:hover { background: var(--border); color: var(--ink); }
+  .fmt-btn b { font-weight: 700; }
+  .fmt-btn i { font-style: italic; }
+  .fmt-sep { width: 1px; height: 16px; background: var(--border); margin: 0 4px; }
+  textarea.compose-input { width: 100%; min-height: 60px; border: none; outline: none; padding: 14px 16px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 300; line-height: 1.65; color: var(--ink); background: var(--white); resize: none; overflow: hidden; display: block; }
   textarea.compose-input::placeholder { color: var(--ink-faint); }
   .compose-bottom { padding: 10px 16px; display: flex; align-items: center; justify-content: flex-end; border-top: 1px solid var(--border-light); }
   .save-btn { background: var(--navy); color: var(--white); border: none; border-radius: 4px; padding: 8px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
@@ -68,19 +74,24 @@
   .search-input { border: 1px solid var(--border); border-radius: 4px; padding: 6px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); background: var(--white); outline: none; width: 180px; transition: border-color 0.15s; }
   .search-input:focus { border-color: var(--blue); }
   .search-input::placeholder { color: var(--ink-faint); }
-  .notes-list { display: flex; flex-direction: column; gap: 8px; }
+  .date-group { margin-bottom: 20px; }
+  .date-group-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; padding-left: 2px; }
+  .notes-list { display: flex; flex-direction: column; gap: 6px; }
   .note-card { background: var(--white); border-radius: 6px; border: 1px solid var(--border); transition: border-color 0.15s, box-shadow 0.15s; overflow: hidden; }
   .note-card:hover { border-color: var(--ink-faint); box-shadow: 0 2px 8px rgba(12,30,60,0.06); }
-  .note-summary { padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px; position: relative; }
+  .note-summary { padding: 11px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
   .note-summary-left { flex: 1; min-width: 0; }
-  .note-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap; }
+  .note-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap; }
   .note-date { font-size: 11px; color: var(--ink-faint); font-weight: 300; }
   .note-headline { font-size: 14px; font-weight: 300; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .note-expand-icon { font-size: 11px; color: var(--ink-faint); flex-shrink: 0; transition: transform 0.2s; user-select: none; }
   .note-card.expanded .note-expand-icon { transform: rotate(180deg); }
-  .note-detail { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border-light); }
+  .note-detail { display: none; padding: 0 14px 12px; border-top: 1px solid var(--border-light); }
   .note-card.expanded .note-detail { display: block; }
-  .note-body { font-size: 14px; font-weight: 300; line-height: 1.65; color: var(--ink); white-space: pre-wrap; word-break: break-word; padding-top: 12px; }
+  .note-body { font-size: 14px; font-weight: 300; line-height: 1.65; color: var(--ink); padding-top: 10px; }
+  .note-body p { margin-bottom: 6px; }
+  .note-body ul { padding-left: 18px; margin-bottom: 6px; }
+  .note-body li { margin-bottom: 2px; }
   .note-insight { margin-top: 10px; padding: 10px 12px; background: var(--blue-light); border-radius: 4px; border-left: 3px solid var(--blue); font-size: 13px; font-weight: 300; color: var(--ink-mid); line-height: 1.55; }
   .note-insight-label { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
   .note-actions { display: flex; gap: 4px; margin-top: 10px; }
@@ -125,6 +136,12 @@
           <button class="add-tag-trigger" id="add-tag-trigger" onclick="showNewTagInput()">+ New</button>
           <input class="new-tag-input" id="new-tag-input" placeholder="Tag name…" maxlength="28">
         </div>
+        <div class="format-bar">
+          <button class="fmt-btn" title="Bold" onmousedown="event.preventDefault();applyFormat('bold')"><b>B</b></button>
+          <button class="fmt-btn" title="Italic" onmousedown="event.preventDefault();applyFormat('italic')"><i>I</i></button>
+          <div class="fmt-sep"></div>
+          <button class="fmt-btn" title="Bullet list" onmousedown="event.preventDefault();applyFormat('bullet')">• List</button>
+        </div>
         <textarea class="compose-input" id="compose-input" placeholder="Write a note…"></textarea>
         <div class="compose-bottom">
           <button class="save-btn" id="save-btn" onclick="saveNote()">Save</button>
@@ -134,7 +151,7 @@
         <div class="notes-title" id="filter-label">All notes</div>
         <input class="search-input" id="search-input" placeholder="Search…" oninput="renderNotes()">
       </div>
-      <div class="notes-list" id="notes-list"></div>
+      <div id="notes-container"></div>
     </div>
   </div>
 </div>
@@ -171,11 +188,84 @@
     document.getElementById('sync-text').textContent = text || '';
   }
 
-  // Auto-expand textarea
-  const composeInput = document.getElementById('compose-input');
   function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.max(60, el.scrollHeight) + 'px';
+  }
+
+  // ── FORMATTING ──
+  function applyFormat(type) {
+    const ta = document.getElementById('compose-input');
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = ta.value.substring(start, end);
+    const before = ta.value.substring(0, start);
+    const after = ta.value.substring(end);
+
+    let newText, newCursor;
+
+    if (type === 'bold') {
+      if (selected) {
+        newText = before + '**' + selected + '**' + after;
+        newCursor = end + 4;
+      } else {
+        newText = before + '****' + after;
+        newCursor = start + 2;
+      }
+    } else if (type === 'italic') {
+      if (selected) {
+        newText = before + '_' + selected + '_' + after;
+        newCursor = end + 2;
+      } else {
+        newText = before + '__' + after;
+        newCursor = start + 1;
+      }
+    } else if (type === 'bullet') {
+      const lineStart = before.lastIndexOf('\n') + 1;
+      const linePrefix = before.substring(lineStart);
+      if (linePrefix.startsWith('• ')) {
+        newText = before.substring(0, lineStart) + linePrefix.substring(2) + selected + after;
+        newCursor = start - 2;
+      } else {
+        newText = before.substring(0, lineStart) + '• ' + linePrefix + selected + after;
+        newCursor = start + 2;
+      }
+    }
+
+    ta.value = newText;
+    ta.selectionStart = ta.selectionEnd = newCursor;
+    autoResize(ta);
+    ta.focus();
+  }
+
+  // ── RENDER MARKDOWN-LITE in notes ──
+  function renderMarkdown(text) {
+    return text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/_(.+?)_/g, '<em>$1</em>')
+      .split('\n')
+      .map(line => line.startsWith('• ') ? `<li>${line.substring(2)}</li>` : `<p>${line || '&nbsp;'}</p>`)
+      .join('')
+      .replace(/(<li>.*<\/li>)+/g, match => `<ul>${match}</ul>`);
+  }
+
+  // ── DATE GROUPING ──
+  function getDateLabel(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const noteDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const diff = Math.floor((today - noteDay) / 86400000);
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7) return d.toLocaleDateString('en-GB', { weekday: 'long' });
+    if (diff < 14) return 'Last week';
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+  }
+
+  function formatTime(iso) {
+    return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   }
 
   async function loadFromCloud() {
@@ -192,7 +282,6 @@
       setSyncStatus('synced', 'Synced');
     } catch(e) {
       setSyncStatus('error', 'Offline');
-      console.error('Load error:', e);
     }
     renderComposeTags();
     renderSidebar();
@@ -241,7 +330,6 @@
     } catch(e) {
       setSyncStatus('error', 'Save failed');
       showToast('Could not save — check connection');
-      console.error('Save error:', e);
     }
     btn.disabled = false;
   }
@@ -347,55 +435,60 @@
     renderNotes();
   }
 
-  function formatDate(iso) {
-    const d = new Date(iso), now = new Date();
-    const diff = Math.floor((now - d) / 1000);
-    const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff/60)}m ago · ${time}`;
-    if (diff < 86400) return `Today · ${time}`;
-    if (diff < 172800) return `Yesterday · ${time}`;
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined }) + ` · ${time}`;
-  }
-
-  function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
   function renderNotes() {
-    const list = document.getElementById('notes-list');
+    const container = document.getElementById('notes-container');
     const search = document.getElementById('search-input').value.toLowerCase();
+
     const filtered = notes.filter(n => {
       const nt = n.tags || [];
       return (activeFilter === 'all' || nt.includes(activeFilter)) && (!search || n.text.toLowerCase().includes(search));
     });
+
     if (!filtered.length) {
-      list.innerHTML = `<div class="empty-state"><p>Nothing here yet</p><p>${activeFilter === 'all' ? 'Write your first note above' : 'No notes in this project'}</p></div>`;
+      container.innerHTML = `<div class="empty-state"><p>Nothing here yet</p><p>${activeFilter === 'all' ? 'Write your first note above' : 'No notes in this project'}</p></div>`;
       return;
     }
-    list.innerHTML = filtered.map(note => {
-      const tagPills = (note.tags || []).map(tid => {
-        const t = tagById(tid);
-        return `<span class="tag-pill" style="color:${t.color};background:${t.bg};font-size:10px;padding:2px 8px;border:1.5px solid transparent;cursor:default;">${t.label}</span>`;
+
+    // Group by date
+    const groups = {};
+    filtered.forEach(note => {
+      const label = getDateLabel(note.created_at);
+      if (!groups[label]) groups[label] = [];
+      groups[label].push(note);
+    });
+
+    container.innerHTML = Object.entries(groups).map(([label, groupNotes]) => {
+      const notesHtml = groupNotes.map(note => {
+        const tagPills = (note.tags || []).map(tid => {
+          const t = tagById(tid);
+          return `<span class="tag-pill" style="color:${t.color};background:${t.bg};font-size:10px;padding:2px 8px;border:1.5px solid transparent;cursor:default;">${t.label}</span>`;
+        }).join('');
+
+        const rawFirstLine = note.text.split('\n')[0].replace(/\*\*/g,'').replace(/_/g,'').replace(/^• /,'');
+        const firstLine = rawFirstLine.substring(0, 80) + (note.text.length > 80 || note.text.includes('\n') ? '…' : '');
+        const insightHtml = note.insight ? `<div class="note-insight"><div class="note-insight-label">Claude</div>${note.insight}</div>` : '';
+        const hasMore = note.text.length > 80 || note.text.includes('\n') || note.insight;
+
+        return `<div class="note-card" id="note-${note.id}">
+          <div class="note-summary" onclick="toggleExpand('${note.id}')">
+            <div class="note-summary-left">
+              <div class="note-meta">${tagPills}<span class="note-date">${formatTime(note.created_at)}</span></div>
+              <div class="note-headline">${rawFirstLine.substring(0,80)}${note.text.length > 80 || note.text.includes('\n') ? '…' : ''}</div>
+            </div>
+            ${hasMore ? '<span class="note-expand-icon">▾</span>' : ''}
+          </div>
+          ${hasMore ? `<div class="note-detail">
+            <div class="note-body">${renderMarkdown(note.text)}</div>
+            ${insightHtml}
+            <div class="note-actions">
+              <button class="note-action-btn" onclick="copyNote(${JSON.stringify(note.text)})">Copy</button>
+              <button class="note-action-btn delete" onclick="deleteNote('${note.id}')">Delete</button>
+            </div>
+          </div>` : ''}
+        </div>`;
       }).join('');
-      const firstLine = esc(note.text.split('\n')[0].substring(0, 80)) + (note.text.length > 80 ? '…' : '');
-      const insightHtml = note.insight ? `<div class="note-insight"><div class="note-insight-label">Claude</div>${esc(note.insight)}</div>` : '';
-      const hasMore = note.text.length > 80 || note.text.includes('\n') || note.insight;
-      return `<div class="note-card" id="note-${note.id}">
-        <div class="note-summary" onclick="toggleExpand('${note.id}')">
-          <div class="note-summary-left">
-            <div class="note-meta">${tagPills}<span class="note-date">${formatDate(note.created_at)}</span></div>
-            <div class="note-headline">${firstLine}</div>
-          </div>
-          ${hasMore ? '<span class="note-expand-icon">▾</span>' : ''}
-        </div>
-        ${hasMore ? `<div class="note-detail">
-          <div class="note-body">${esc(note.text)}</div>
-          ${insightHtml}
-          <div class="note-actions">
-            <button class="note-action-btn" onclick="copyNote(${JSON.stringify(note.text)})">Copy</button>
-            <button class="note-action-btn delete" onclick="deleteNote('${note.id}')">Delete</button>
-          </div>
-        </div>` : `<div class="note-detail" style="display:none"><div class="note-actions" style="padding:8px 0 0"><button class="note-action-btn" onclick="copyNote(${JSON.stringify(note.text)})">Copy</button><button class="note-action-btn delete" onclick="deleteNote('${note.id}')">Delete</button></div></div>`}
-      </div>`;
+
+      return `<div class="date-group"><div class="date-group-label">${label}</div><div class="notes-list">${notesHtml}</div></div>`;
     }).join('');
   }
 
